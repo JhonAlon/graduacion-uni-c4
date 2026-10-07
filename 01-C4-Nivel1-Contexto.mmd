@@ -1,0 +1,22 @@
+C4Context
+title Sistema de Gestion de Proyectos de Graduacion UNI - Contexto
+
+Person(estudiante, "Estudiante", "Registra su propuesta, entrega documentos y consulta el avance de su proyecto")
+Person(tutor, "Tutor", "Revisa propuestas y documentos, registra observaciones y valida avances")
+Person(coordinador, "Coordinador", "Asigna tutores, administra estados y seguimiento academico")
+Person(admin, "Administrador", "Administra usuarios, roles y catalogos del sistema")
+
+System(uni, "Sistema de Gestion de Proyectos de Graduacion UNI", "Plataforma web para registrar, revisar, aprobar y dar seguimiento a los proyectos de graduacion")
+
+System_Ext(registro, "Registro Academico UNI", "Fuente oficial de datos de estudiantes, carreras y ciclos academicos")
+System_Ext(email, "Correo institucional", "Envia notificaciones academicas de estado y de asignacion")
+System_Ext(storage, "Almacenamiento de documentos", "Conserva propuestas, avances, anexos y actas de defensa")
+
+Rel(estudiante, uni, "Registra propuestas, entrega documentos y consulta avances")
+Rel(tutor, uni, "Revisa proyectos y registra observaciones")
+Rel(coordinador, uni, "Gestiona asignaciones, estados y seguimiento")
+Rel(admin, uni, "Administra usuarios y catalogos")
+
+Rel(uni, registro, "Consulta datos academicos oficiales", "HTTPS/JSON")
+Rel(uni, email, "Envia notificaciones", "SMTP")
+Rel(uni, storage, "Almacena y recupera documentos", "HTTPS")

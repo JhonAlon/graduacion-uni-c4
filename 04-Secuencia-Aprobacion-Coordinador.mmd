@@ -1,0 +1,38 @@
+sequenceDiagram
+    autonumber
+    actor C as Coordinador
+    participant W as Aplicacion Web
+    participant A as API REST
+    participant DB as SQL Server
+    participant M as Servicio de correo
+
+    C->>W: Abre una propuesta en estado revision
+    W->>A: GET /api/projects/{id}
+    activate A
+    A->>DB: Consultar proyecto, documentos y revisiones
+    DB-->>A: Proyecto + documentos + historial
+    A-->>W: 200 OK + JSON
+    W-->>C: Muestra la propuesta completa
+    deactivate A
+
+    C->>W: Registra observaciones y aprueba
+    W->>A: PATCH /api/projects/{id}
+    activate A
+    A->>A: Validar transicion de estados permitida
+    A->>DB: UPDATE estado = aprobada, tutor_id
+    DB-->>A: Fila actualizada
+    A->>M: Notificar al estudiante y al tutor asignado
+    M-->>A: 202 Accepted
+    A-->>W: 200 OK + proyecto actualizado
+    W-->>C: Muestra confirmacion del cambio
+    deactivate A
+
+    Note over A,M: El estudiante y el tutor reciben el correo con el enlace al proyecto
+
+    rect rgba(6, 78, 59, 0.08)
+        W->>A: GET /api/projects/{id}
+        A->>DB: Reconsultar proyecto
+        DB-->>A: Proyecto con estado aprobada
+        A-->>W: 200 OK + JSON
+        W-->>C: Refresca la tabla de seguimiento
+    end

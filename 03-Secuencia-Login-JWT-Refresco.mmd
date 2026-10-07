@@ -1,0 +1,35 @@
+sequenceDiagram
+    autonumber
+    actor E as Estudiante
+    participant W as Aplicacion Web
+    participant A as API REST
+    participant DB as SQL Server
+
+    E->>W: Ingresa correo y contrasena
+    W->>A: POST /api/auth/login
+    activate A
+    A->>DB: SELECT usuario por correo
+    DB-->>A: Usuario + hash PBKDF2 + rol
+    A->>A: Verificar contrasena con PBKDF2
+    alt Credenciales validas
+        A->>A: Emitir access token (JWT) y refresh token
+        A->>DB: Registrar refresh token vigente
+        A-->>W: 200 OK + access token + refresh token
+        W->>A: GET /api/projects/mine
+        Note right of A: Header Authorization con el access token emitido
+        A->>DB: Consultar proyectos del estudiante
+        DB-->>A: Lista de proyectos
+        A-->>W: 200 OK + JSON
+        W-->>E: Muestra el panel con sus proyectos
+    else Credenciales invalidas
+        A-->>W: 401 Unauthorized
+        W-->>E: Muestra mensaje de autenticacion
+    end
+    deactivate A
+
+    Note over E,W: El access token expira y la sesion debe renovarse
+    W->>A: POST /api/auth/refresh
+    A->>DB: Validar refresh token vigente
+    DB-->>A: Token valido
+    A-->>W: 200 OK + nuevo access token
+    W-->>E: Continua navegando sin volver a digitar la clave

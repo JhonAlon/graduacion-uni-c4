@@ -1,0 +1,31 @@
+C4Container
+title Sistema de Gestion de Proyectos de Graduacion UNI - Contenedores
+
+Person(estudiante, "Estudiante", "Usuario academico")
+Person(tutor, "Tutor", "Docente tutor")
+Person(coordinador, "Coordinador", "Responsable academico")
+Person(admin, "Administrador", "Gestor de usuarios y catalogos")
+
+System_Boundary(uni, "Sistema de Gestion de Proyectos de Graduacion UNI") {
+    Container(web, "Aplicacion Web", "React / TypeScript", "Interfaz para estudiantes, tutores, coordinadores y administradores")
+    Container(api, "API REST", "ASP.NET Core Web API / C#", "Autenticacion, reglas de negocio, DTO y servicios HTTP")
+    Container(worker, "Servicio de Reportes", "Worker en C# / Hangfire", "Genera reportes de avance y consolidados por carrera de forma asincrona")
+    ContainerDb(db, "Base de Datos", "SQL Server", "Usuarios, proyectos, revisiones, estados y catalogos")
+    ContainerDb(files, "Gestor de Documentos", "Almacenamiento de objetos", "Propuestas, avances, anexos y actas de defensa")
+}
+
+System_Ext(email, "Correo institucional", "SMTP / proveedor de correo")
+System_Ext(registro, "Registro Academico UNI", "Datos academicos oficiales")
+
+Rel(estudiante, web, "Usa", "HTTPS")
+Rel(tutor, web, "Usa", "HTTPS")
+Rel(coordinador, web, "Usa", "HTTPS")
+Rel(admin, web, "Usa", "HTTPS")
+
+Rel(web, api, "Consume API REST", "HTTPS/JSON")
+Rel(api, db, "Lee y escribe", "EF Core / SQL")
+Rel(api, files, "Sube y recupera documentos", "HTTPS")
+Rel(api, worker, "Encola trabajos de reporte", "HTTPS/JSON")
+Rel(worker, db, "Lee datos de proyectos", "EF Core / SQL")
+Rel(api, email, "Envia notificaciones", "SMTP/API")
+Rel(api, registro, "Consulta datos academicos", "HTTPS/JSON")
